@@ -578,10 +578,10 @@ static __poll_t mqueue_poll_file(struct file *filp, struct poll_table_struct *po
 
 	spin_lock(&info->lock);
 	if (info->attr.mq_curmsgs)
-		retval = POLLIN | POLLRDNORM;
+		retval = EPOLLIN | EPOLLRDNORM;
 
 	if (info->attr.mq_curmsgs < info->attr.mq_maxmsg)
-		retval |= POLLOUT | POLLWRNORM;
+		retval |= EPOLLOUT | EPOLLWRNORM;
 	spin_unlock(&info->lock);
 
 	return retval;
@@ -596,7 +596,7 @@ static void wq_add(struct mqueue_inode_info *info, int sr,
 	ewp->task = current;
 
 	list_for_each_entry(walk, &info->e_wait_q[sr].list, list) {
-		if (walk->task->static_prio <= current->static_prio) {
+		if (walk->task->prio <= current->prio) {
 			list_add_tail(&ewp->list, &walk->list);
 			return;
 		}
